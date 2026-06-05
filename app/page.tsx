@@ -5,6 +5,8 @@ import dbConnect from '@/lib/mongodb';
 import Property from '@/lib/models/Property';
 import PropertyCard from '@/components/PropertyCard';
 
+export const dynamic = 'force-dynamic';
+
 const zones = [
   {
     id: 'Apartment',
