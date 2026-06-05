@@ -1,0 +1,17 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon 
+    points="16,2 30,10 30,26 16,30 2,26 2,10" 
+    stroke="url(#logoGoldGrad)" 
+    stroke-width="2" 
+    stroke-linejoin="round" 
+    fill="#050d24" 
+  />
+  <path d="M9 16L16 10L23 16V22C23 23.1 22.1 24 21 24H11C9.9 24 9 23.1 9 22V16Z" fill="url(#logoGoldGrad)" />
+  <path d="M14 17L16 15L18 17V21H14V17Z" fill="#050d24" />
+  <defs>
+    <linearGradient id="logoGoldGrad" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F5A623"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+  </defs>
+</svg>

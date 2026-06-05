@@ -1,0 +1,310 @@
+import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/mongodb';
+import Property from '@/lib/models/Property';
+import AdminUser from '@/lib/models/AdminUser';
+import { hashPassword } from '@/lib/auth';
+
+export async function POST() {
+  try {
+    await dbConnect();
+
+    // Seed Admin
+    const existingAdmin = await AdminUser.findOne({ username: 'admin' });
+    if (!existingAdmin) {
+      const passwordHash = await hashPassword('LankaRent@2024');
+      await AdminUser.create({ username: 'admin', passwordHash });
+    }
+
+    // Wipe & re-seed properties so count is always fresh
+    await Property.deleteMany({});
+
+    const now = new Date();
+    const future = (days: number) => new Date(now.getTime() + days * 86400000);
+
+    const properties = [
+      /* ─── APARTMENTS ─────────────────────────────────────────── */
+      {
+        title: 'Skyline Luxury Apartment',
+        category: 'Apartment',
+        location: 'Kollupitiya, Colombo 03',
+        district: 'Colombo',
+        monthlyRate: 185000,
+        description: 'A breathtaking high-rise apartment in the heart of Colombo featuring stunning ocean views, modern interiors, and world-class amenities. Perfect for professionals seeking an upscale urban lifestyle.',
+        bedrooms: 3, bathrooms: 2, areaSqft: 1850,
+        amenities: ['Swimming Pool', 'Gym', 'Concierge', 'Rooftop Terrace', 'Underground Parking', '24h Security', 'Backup Generator'],
+        petPolicy: 'Small pets allowed with deposit',
+        utilitiesIncluded: ['Water', 'Building Maintenance', 'Security'],
+        availableFrom: future(7), isAvailable: true,
+        images: ['/images/apartment1.png'],
+      },
+      {
+        title: 'Cinnamon Gardens Premium Flat',
+        category: 'Apartment',
+        location: 'Cinnamon Gardens, Colombo 07',
+        district: 'Colombo',
+        monthlyRate: 145000,
+        description: 'Spacious modern apartment in the prestigious Cinnamon Gardens neighbourhood. Surrounded by embassies, top schools, and fine dining. Ideal for families and senior executives.',
+        bedrooms: 2, bathrooms: 2, areaSqft: 1400,
+        amenities: ['Balcony', 'Swimming Pool', 'Gym', 'Parking', '24h Security', 'Generator'],
+        petPolicy: 'No pets allowed',
+        utilitiesIncluded: ['Water', 'Building Maintenance'],
+        availableFrom: future(21), isAvailable: true,
+        images: ['/images/hero1.png'],
+      },
+      {
+        title: 'Rajagiriya Smart Apartment',
+        category: 'Apartment',
+        location: 'Rajagiriya, Sri Jayawardenepura',
+        district: 'Colombo',
+        monthlyRate: 98000,
+        description: 'A fully smart-home equipped apartment minutes from the Parliament and commercial district. Features automated lighting, voice-controlled appliances, and fibre internet.',
+        bedrooms: 2, bathrooms: 1, areaSqft: 1100,
+        amenities: ['Smart Home', 'Fibre Internet', 'Parking', 'CCTV', 'Backup Power', 'Air Conditioning'],
+        petPolicy: 'No pets allowed',
+        utilitiesIncluded: ['Water', 'Internet'],
+        availableFrom: future(5), isAvailable: true,
+        images: ['/images/apartment1.png'],
+      },
+      {
+        title: 'Mount Lavinia Beachfront Apartment',
+        category: 'Apartment',
+        location: 'Hotel Road, Mount Lavinia',
+        district: 'Colombo',
+        monthlyRate: 125000,
+        description: 'Wake up to the sound of waves in this beautifully furnished beachfront apartment. Direct beach access, stunning sunset views, and a short commute to Colombo city centre.',
+        bedrooms: 2, bathrooms: 2, areaSqft: 1250,
+        amenities: ['Beach Access', 'Sea View', 'Balcony', 'Parking', 'Security', 'Air Conditioning'],
+        petPolicy: 'Small pets allowed',
+        utilitiesIncluded: ['Water'],
+        availableFrom: future(10), isAvailable: true,
+        images: ['/images/hero1.png'],
+      },
+      {
+        title: 'Wellawatte Elegant Residence',
+        category: 'Apartment',
+        location: 'Galle Road, Wellawatte',
+        district: 'Colombo',
+        monthlyRate: 75000,
+        description: 'Charming fully-furnished apartment on Galle Road with easy access to schools, markets, and Colombo south. Newly renovated with modern finishes throughout.',
+        bedrooms: 1, bathrooms: 1, areaSqft: 850,
+        amenities: ['Furnished', 'Air Conditioning', 'Security', 'Parking', 'Balcony'],
+        petPolicy: 'No pets allowed',
+        utilitiesIncluded: ['Water', 'Electricity'],
+        availableFrom: future(3), isAvailable: true,
+        images: ['/images/hero1.png'],
+      },
+      {
+        title: 'Battaramulla Diplomat Residency',
+        category: 'Apartment',
+        location: 'Battaramulla, Sri Jayawardenepura',
+        district: 'Colombo',
+        monthlyRate: 110000,
+        description: 'Premium gated-community apartment popular with diplomatic and corporate tenants. Quiet suburban setting with fast access to Parliament, Rajagiriya, and the Outer Circular Highway.',
+        bedrooms: 3, bathrooms: 2, areaSqft: 1600,
+        amenities: ['Gated Community', 'Swimming Pool', 'Garden', 'Parking x2', 'Generator', '24h Security'],
+        petPolicy: 'Pets allowed',
+        utilitiesIncluded: ['Water', 'Building Maintenance'],
+        availableFrom: future(14), isAvailable: true,
+        images: ['/images/hero1.png'],
+      },
+
+      /* ─── STUDIOS ─────────────────────────────────────────────── */
+      {
+        title: 'Negombo Beach Shared Studio',
+        category: 'Studio',
+        location: 'Lewis Place, Negombo',
+        district: 'Gampaha',
+        monthlyRate: 45000,
+        description: 'A cozy, fully furnished beach-front studio perfect for digital nomads and solo travelers. Walking distance to the beach with a vibrant community of like-minded residents.',
+        bedrooms: 1, bathrooms: 1, areaSqft: 480,
+        amenities: ['Beach Access', 'Shared Kitchen', 'WiFi', 'Laundry', 'Bike Rental', 'Common Lounge'],
+        petPolicy: 'No pets allowed',
+        utilitiesIncluded: ['Water', 'Electricity', 'Internet', 'Cleaning (Weekly)'],
+        availableFrom: future(1), isAvailable: true,
+        images: ['/images/studio1.png'],
+      },
+      {
+        title: 'Batticaloa Lagoon Studio',
+        category: 'Studio',
+        location: 'Lagoon Road, Batticaloa',
+        district: 'Batticaloa',
+        monthlyRate: 32000,
+        description: 'A tranquil studio apartment overlooking the famous Batticaloa lagoon. Newly renovated with modern furnishings and serene water views - a rare find on the Eastern coast.',
+        bedrooms: 1, bathrooms: 1, areaSqft: 520,
+        amenities: ['Lagoon View', 'WiFi', 'Parking', 'Security', 'Air Conditioning'],
+        petPolicy: 'Small pets allowed',
+        utilitiesIncluded: ['Water', 'Electricity'],
+        availableFrom: future(5), isAvailable: true,
+        images: ['/images/hero2.png'],
+      },
+      {
+        title: 'Mirissa Surf Studio',
+        category: 'Studio',
+        location: 'Beach Road, Mirissa',
+        district: 'Matara',
+        monthlyRate: 55000,
+        description: 'A vibrant tropical studio steps from Mirissa\'s world-famous surf beach. Fully furnished with a tropical garden patio, hammock, and shared rooftop deck with panoramic ocean views.',
+        bedrooms: 1, bathrooms: 1, areaSqft: 400,
+        amenities: ['Ocean View', 'Garden Patio', 'Shared Rooftop', 'WiFi', 'Surfboard Storage', 'Outdoor Shower'],
+        petPolicy: 'Small pets allowed',
+        utilitiesIncluded: ['Water', 'Electricity', 'WiFi'],
+        availableFrom: future(2), isAvailable: true,
+        images: ['/images/studio1.png'],
+      },
+      {
+        title: 'Kandy City Centre Studio',
+        category: 'Studio',
+        location: 'Dalada Veediya, Kandy',
+        district: 'Kandy',
+        monthlyRate: 38000,
+        description: 'Compact and modern studio in the cultural capital of Sri Lanka, walking distance to the Temple of the Tooth, city market, and top restaurants. Ideal for solo professionals.',
+        bedrooms: 1, bathrooms: 1, areaSqft: 440,
+        amenities: ['City View', 'WiFi', 'Air Conditioning', 'Security', 'Furnished'],
+        petPolicy: 'No pets allowed',
+        utilitiesIncluded: ['Water', 'Electricity'],
+        availableFrom: future(0), isAvailable: true,
+        images: ['/images/hero2.png'],
+      },
+
+      /* ─── OFFICES ─────────────────────────────────────────────── */
+      {
+        title: 'Kandy Hills Executive Office',
+        category: 'Office',
+        location: 'Peradeniya Road, Kandy',
+        district: 'Kandy',
+        monthlyRate: 95000,
+        description: 'A premium executive office suite with panoramic views of the Kandy hills. Fully furnished with high-speed fibre internet, dedicated meeting rooms, and a professional reception service.',
+        bedrooms: 0, bathrooms: 2, areaSqft: 1200,
+        amenities: ['High-Speed WiFi', 'Meeting Room', 'Reception', 'Parking', 'AC', 'Backup Power', 'Coffee Station'],
+        petPolicy: 'No pets allowed',
+        utilitiesIncluded: ['Electricity', 'Water', 'Internet', 'Cleaning'],
+        availableFrom: future(3), isAvailable: true,
+        images: ['/images/office1.png'],
+      },
+      {
+        title: 'Colombo World Trade Center Office',
+        category: 'Office',
+        location: 'World Trade Center, Colombo 01',
+        district: 'Colombo',
+        monthlyRate: 220000,
+        description: 'Grade-A commercial office space in the iconic World Trade Center twin towers. Prestigious address with stunning harbour views, full fit-out, and premium building facilities.',
+        bedrooms: 0, bathrooms: 3, areaSqft: 2800,
+        amenities: ['Board Room', 'Reception', 'Pantry', 'Server Room', 'Parking x4', 'AC', '24h Access', 'Backup Power'],
+        petPolicy: 'No pets allowed',
+        utilitiesIncluded: ['Electricity', 'Water', 'Cleaning', 'Building Security'],
+        availableFrom: future(30), isAvailable: true,
+        images: ['/images/hero3.png'],
+      },
+      {
+        title: 'Galle Fort Boutique Office',
+        category: 'Office',
+        location: 'Church Street, Galle Fort',
+        district: 'Galle',
+        monthlyRate: 65000,
+        description: 'A charming boutique office within the UNESCO-listed Galle Fort walls. Colonial architecture with modern amenities - perfect for creative agencies, law firms, and boutique consultancies.',
+        bedrooms: 0, bathrooms: 1, areaSqft: 750,
+        amenities: ['Heritage Building', 'Meeting Area', 'WiFi', 'AC', 'Parking Nearby', 'Fully Furnished'],
+        petPolicy: 'No pets allowed',
+        utilitiesIncluded: ['Electricity', 'Water', 'Internet'],
+        availableFrom: future(7), isAvailable: true,
+        images: ['/images/office1.png'],
+      },
+      {
+        title: 'Nugegoda Tech Hub Coworking',
+        category: 'Office',
+        location: 'High Level Road, Nugegoda',
+        district: 'Colombo',
+        monthlyRate: 55000,
+        description: 'A modern coworking and private office space in the thriving Nugegoda tech corridor. High-speed internet, hot desks, dedicated desks, and private cabins available on flexible terms.',
+        bedrooms: 0, bathrooms: 2, areaSqft: 900,
+        amenities: ['Hot Desks', 'Private Cabins', '1Gbps WiFi', 'Lounge', 'Coffee Bar', 'Events Space', 'Parking'],
+        petPolicy: 'No pets allowed',
+        utilitiesIncluded: ['Electricity', 'Internet', 'Cleaning', 'Water'],
+        availableFrom: future(0), isAvailable: true,
+        images: ['/images/hero3.png'],
+      },
+
+      /* ─── VILLAS ──────────────────────────────────────────────── */
+      {
+        title: 'Galle Fort Heritage Villa',
+        category: 'Villa',
+        location: 'Galle Fort, Galle',
+        district: 'Galle',
+        monthlyRate: 320000,
+        description: 'An exquisite colonial-era villa nestled within the UNESCO-listed Galle Fort. Features original Dutch architecture, private courtyard, infinity pool with ocean vistas, and premium tropical landscaping.',
+        bedrooms: 5, bathrooms: 4, areaSqft: 4200,
+        amenities: ['Private Pool', 'Garden', 'Chef Kitchen', 'Sea View', 'Parking', 'Smart Home', 'Wine Cellar'],
+        petPolicy: 'Pets allowed',
+        utilitiesIncluded: ['Water', 'Electricity', 'Gardening', 'Pool Maintenance'],
+        availableFrom: future(14), isAvailable: true,
+        images: ['/images/villa1.png'],
+      },
+      {
+        title: 'Nuwara Eliya Mountain Bungalow',
+        category: 'Villa',
+        location: 'Gregory Lake Road, Nuwara Eliya',
+        district: 'Nuwara Eliya',
+        monthlyRate: 280000,
+        description: 'A magnificent colonial bungalow set amidst lush tea plantations with breathtaking mountain panoramas. Features original fireplaces, manicured gardens, and old-world charm with modern comforts.',
+        bedrooms: 4, bathrooms: 3, areaSqft: 3600,
+        amenities: ['Fireplace', 'Garden', 'Tea Plantation View', 'Parking', 'Staff Quarters', 'Smart TV', 'BBQ Area'],
+        petPolicy: 'Pets allowed',
+        utilitiesIncluded: ['Water', 'Electricity', 'Gardening'],
+        availableFrom: future(10), isAvailable: false,
+        images: ['/images/hero2.png'],
+      },
+      {
+        title: 'Bentota River-Front Villa',
+        category: 'Villa',
+        location: 'River Avenue, Bentota',
+        district: 'Galle',
+        monthlyRate: 245000,
+        description: 'A stunning contemporary villa on the banks of the Bentota River, just minutes from the beach. Boasts a private infinity pool, landscaped gardens, and direct river access with a private jetty.',
+        bedrooms: 4, bathrooms: 3, areaSqft: 3200,
+        amenities: ['Private Pool', 'River View', 'Private Jetty', 'Garden', 'BBQ Deck', 'Chef Kitchen', 'Parking'],
+        petPolicy: 'Pets allowed',
+        utilitiesIncluded: ['Water', 'Electricity', 'Pool Maintenance', 'Gardening'],
+        availableFrom: future(7), isAvailable: true,
+        images: ['/images/villa1.png'],
+      },
+      {
+        title: 'Unawatuna Cliffside Villa',
+        category: 'Villa',
+        location: 'Rumassala, Unawatuna',
+        district: 'Galle',
+        monthlyRate: 195000,
+        description: 'A dramatic cliffside villa perched above Unawatuna\'s golden crescent bay. Sweeping ocean panoramas, dramatic sunset views, private plunge pool, and lush jungle surroundings in paradise.',
+        bedrooms: 3, bathrooms: 2, areaSqft: 2400,
+        amenities: ['Ocean View', 'Plunge Pool', 'Jungle Garden', 'Outdoor Kitchen', 'Open-Plan Living', 'Parking'],
+        petPolicy: 'Small pets allowed',
+        utilitiesIncluded: ['Water', 'Electricity'],
+        availableFrom: future(3), isAvailable: true,
+        images: ['/images/hero2.png'],
+      },
+      {
+        title: 'Sigiriya Eco-Luxury Villa',
+        category: 'Villa',
+        location: 'Sigiriya Village, Sigiriya',
+        district: 'Matale',
+        monthlyRate: 175000,
+        description: 'An extraordinary eco-luxury villa with direct views of the iconic Sigiriya rock fortress. Solar-powered, sustainably designed with a private pool, paddy field vistas, and jungle safari proximity.',
+        bedrooms: 3, bathrooms: 2, areaSqft: 2800,
+        amenities: ['Rock View', 'Private Pool', 'Solar Power', 'Eco-Design', 'Garden', 'Safari Nearby', 'BBQ'],
+        petPolicy: 'Pets allowed',
+        utilitiesIncluded: ['Water', 'Solar Electricity', 'Gardening'],
+        availableFrom: future(20), isAvailable: true,
+        images: ['/images/villa1.png'],
+      },
+    ];
+
+    await Property.insertMany(properties);
+
+    return NextResponse.json({
+      success: true,
+      message: `Database seeded with ${properties.length} properties and admin user (admin / LankaRent@2024)`,
+    });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ success: false, error: 'Seed failed' }, { status: 500 });
+  }
+}

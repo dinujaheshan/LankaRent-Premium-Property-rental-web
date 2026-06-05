@@ -1,0 +1,14 @@
+{
+  "components\\HeroCarousel.tsx -> swiper": {
+    "id": "components\\HeroCarousel.tsx -> swiper",
+    "files": [
+      "static/chunks/_app-pages-browser_node_modules_swiper_swiper_mjs.js"
+    ]
+  },
+  "components\\HeroCarousel.tsx -> swiper/modules": {
+    "id": "components\\HeroCarousel.tsx -> swiper/modules",
+    "files": [
+      "static/chunks/_app-pages-browser_node_modules_swiper_modules_index_mjs.js"
+    ]
+  }
+}
