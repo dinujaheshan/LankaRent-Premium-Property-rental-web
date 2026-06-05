@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PropertyCard from '@/components/PropertyCard';
 import FilterPills from '@/components/FilterPills';
@@ -20,7 +20,7 @@ interface Property {
   images: string[];
 }
 
-export default function ListingsPage() {
+function ListingsContent() {
   const searchParams  = useSearchParams();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading]       = useState(true);
@@ -58,7 +58,7 @@ export default function ListingsPage() {
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4 text-xs font-outfit font-semibold uppercase tracking-wider"
             style={{ background: 'rgba(245,166,35,0.08)', border: '1px solid rgba(245,166,35,0.2)', color: '#F5A623' }}>
-            <i className="uil uil-list-ul" />
+            <i className="uil uil-sync" />
             Live Inventory
           </div>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -148,5 +148,20 @@ export default function ListingsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ListingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen pt-28 pb-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-14 h-14 rounded-full border-2 border-t-gold-500 border-white/10 animate-spin mx-auto mb-4" />
+          <p className="text-white/50 font-inter">Loading listings...</p>
+        </div>
+      </div>
+    }>
+      <ListingsContent />
+    </Suspense>
   );
 }

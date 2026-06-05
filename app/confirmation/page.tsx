@@ -2,9 +2,9 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
-export default function ConfirmationPage() {
+function ConfirmationContent() {
   const searchParams = useSearchParams();
   const name     = searchParams.get('name') || 'Applicant';
   const property = searchParams.get('property') || 'the property';
@@ -80,5 +80,20 @@ export default function ConfirmationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen pt-28 pb-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-14 h-14 rounded-full border-2 border-t-gold-500 border-white/10 animate-spin mx-auto mb-4" />
+          <p className="text-white/50 font-inter">Loading confirmation details...</p>
+        </div>
+      </div>
+    }>
+      <ConfirmationContent />
+    </Suspense>
   );
 }
