@@ -35,19 +35,19 @@ function ConfirmationContent() {
             <span className="text-gold-gradient">{name}!</span>
           </h1>
 
-          <p className="text-white/60 font-inter text-base leading-relaxed mb-2">
+          <p className="text-theme-secondary font-inter text-base leading-relaxed mb-2">
             Your tenancy application for{' '}
-            <span className="text-white/85 font-semibold">{property}</span>{' '}
+            <span className="text-theme-primary font-semibold">{property}</span>{' '}
             has been received and is now under review.
           </p>
 
-          <p className="text-white/45 font-inter text-sm mb-10">
+          <p className="text-theme-tertiary font-inter text-sm mb-10">
             Our team will review your application and contact you within 2-3 business days at the email address provided.
           </p>
 
           {/* Status card */}
           <div className="glass-card p-5 mb-8 text-left space-y-3">
-            <h3 className="font-outfit font-semibold text-white text-sm mb-3">Application Status</h3>
+            <h3 className="font-outfit font-semibold text-theme-primary text-sm mb-3">Application Status</h3>
             {[
               { icon: 'uil-check-circle',  color: '#4ade80', label: 'Application Received',   active: true  },
               { icon: 'uil-hourglass',     color: '#fbbf24', label: 'Under Review',            active: true  },
@@ -56,10 +56,10 @@ function ConfirmationContent() {
             ].map(({ icon, color, label, active }) => (
               <div key={label} className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                  style={{ background: active ? `${color}20` : 'rgba(255,255,255,0.04)', border: `1px solid ${active ? color + '40' : 'rgba(255,255,255,0.08)'}` }}>
-                  <i className={`uil ${icon} text-sm`} style={{ color: active ? color : 'rgba(255,255,255,0.25)' }} />
+                  style={{ background: active ? `${color}20` : 'var(--input-bg)', border: `1px solid ${active ? color + '40' : 'var(--border-color)'}` }}>
+                  <i className={`uil ${icon} text-sm`} style={{ color: active ? color : 'var(--text-muted)' }} />
                 </div>
-                <span className={`font-inter text-sm ${active ? 'text-white/80' : 'text-white/30'}`}>{label}</span>
+                <span className={`font-inter text-sm ${active ? 'text-theme-primary' : 'text-theme-muted'}`}>{label}</span>
                 {active && label === 'Under Review' && (
                   <span className="ml-auto text-xs px-2 py-0.5 rounded-full font-outfit font-semibold status-review badge">Under Review</span>
                 )}
@@ -88,8 +88,8 @@ export default function ConfirmationPage() {
     <Suspense fallback={
       <div className="min-h-screen pt-28 pb-16 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-14 h-14 rounded-full border-2 border-t-gold-500 border-white/10 animate-spin mx-auto mb-4" />
-          <p className="text-white/50 font-inter">Loading confirmation details...</p>
+          <div className="w-14 h-14 rounded-full border-2 border-t-gold-500 border-theme-muted/20 animate-spin mx-auto mb-4" />
+          <p className="text-theme-secondary font-inter">Loading confirmation details...</p>
         </div>
       </div>
     }>

@@ -76,7 +76,7 @@ export default function HelpPage() {
           <h1 className="section-title text-3xl sm:text-4xl mb-4">
             Help & <span className="text-gold-gradient">Inquiries</span>
           </h1>
-          <p className="text-white/55 font-inter max-w-lg mx-auto">
+          <p className="text-theme-secondary font-inter max-w-lg mx-auto">
             Have a question or need assistance? Our team is ready to help you find your perfect rental in Sri Lanka.
           </p>
         </div>
@@ -87,7 +87,7 @@ export default function HelpPage() {
           <div className="space-y-6">
             {/* Contact cards */}
             <div className="glass-card p-6 space-y-4">
-              <h3 className="font-outfit font-bold text-white text-base mb-1">Contact Us</h3>
+              <h3 className="font-outfit font-bold text-theme-primary text-base mb-1">Contact Us</h3>
               {contactInfo.map(({ icon, label, val, href }) => (
                 <a key={label} href={href} className="flex items-start gap-3 group">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 transition-all duration-200 group-hover:scale-110"
@@ -95,8 +95,8 @@ export default function HelpPage() {
                     <i className={`uil ${icon} text-gold-500 text-base`} />
                   </div>
                   <div>
-                    <div className="text-white/40 text-xs font-inter">{label}</div>
-                    <div className="text-white/80 text-sm font-inter mt-0.5 group-hover:text-white transition-colors">{val}</div>
+                    <div className="text-theme-muted text-xs font-inter">{label}</div>
+                    <div className="text-theme-secondary text-sm font-inter mt-0.5 group-hover:text-theme-primary transition-colors">{val}</div>
                   </div>
                 </a>
               ))}
@@ -104,22 +104,22 @@ export default function HelpPage() {
 
             {/* FAQs */}
             <div className="glass-card p-6">
-              <h3 className="font-outfit font-bold text-white text-base mb-4">
+              <h3 className="font-outfit font-bold text-theme-primary text-base mb-4">
                 <i className="uil uil-question-circle text-gold-500 mr-2" />
                 Frequently Asked
               </h3>
               <div className="space-y-2">
                 {faqs.map((faq, i) => (
-                  <div key={i} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div key={i} className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-color)' }}>
                     <button
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                      className="w-full flex items-center justify-between gap-3 p-4 text-left transition-all duration-200 hover:bg-white/4"
+                      className="w-full flex items-center justify-between gap-3 p-4 text-left transition-all duration-200 hover:bg-theme-muted/5"
                     >
-                      <span className="text-white/75 font-inter text-sm">{faq.q}</span>
+                      <span className="text-theme-secondary font-inter text-sm">{faq.q}</span>
                       <i className={`uil uil-angle-${openFaq === i ? 'up' : 'down'} text-gold-500 text-lg shrink-0`} />
                     </button>
                     {openFaq === i && (
-                      <div className="px-4 pb-4 text-white/50 font-inter text-sm leading-relaxed" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div className="px-4 pb-4 text-theme-tertiary font-inter text-sm leading-relaxed" style={{ borderTop: '1px solid var(--border-light)' }}>
                         <div className="pt-3">{faq.a}</div>
                       </div>
                     )}
@@ -138,8 +138,8 @@ export default function HelpPage() {
                     style={{ background: 'rgba(34,197,94,0.1)', border: '2px solid rgba(34,197,94,0.25)' }}>
                     <i className="uil uil-check-circle text-4xl text-green-400" />
                   </div>
-                  <h3 className="font-outfit font-bold text-white text-xl mb-2">Message Sent!</h3>
-                  <p className="text-white/55 font-inter text-sm mb-6">
+                  <h3 className="font-outfit font-bold text-theme-primary text-xl mb-2">Message Sent!</h3>
+                  <p className="text-theme-secondary font-inter text-sm mb-6">
                     Thank you for reaching out. Our team will respond within 24 hours.
                   </p>
                   <button onClick={() => setSubmitted(false)} className="btn-outline text-sm">
@@ -149,7 +149,7 @@ export default function HelpPage() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                  <h3 className="font-outfit font-bold text-white text-lg mb-1">
+                  <h3 className="font-outfit font-bold text-theme-primary text-lg mb-1">
                     <i className="uil uil-comment-message text-gold-500 mr-2" />
                     Send a Message
                   </h3>

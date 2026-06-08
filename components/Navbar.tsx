@@ -53,7 +53,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1">
             {navLinks.map(({ href, label, icon }) => {
               const active = pathname === href;
               return (
@@ -78,7 +78,7 @@ export default function Navbar() {
           </div>
 
           {/* CTA + Theme Toggle */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             <button
               onClick={toggleTheme}
               className="theme-toggle"
@@ -94,7 +94,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Hamburger */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="lg:hidden flex items-center gap-2">
             <button
               onClick={toggleTheme}
               className="theme-toggle"
@@ -115,7 +115,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {mobileOpen && (
-          <div className="md:hidden mt-3 pb-4 glass-card p-4 space-y-1">
+          <div className="lg:hidden mt-3 pb-4 glass-card p-4 space-y-1">
             {navLinks.map(({ href, label, icon }) => (
               <Link
                 key={href}

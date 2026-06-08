@@ -4,7 +4,7 @@ export default function NotFound() {
       <div>
         <div className="font-outfit font-black text-8xl text-gold-500/20 mb-4">404</div>
         <h1 className="section-title text-3xl mb-4">Page Not Found</h1>
-        <p className="text-white/50 font-inter mb-8">The page you are looking for does not exist or has been moved.</p>
+        <p className="text-theme-secondary font-inter mb-8">The page you are looking for does not exist or has been moved.</p>
         <a href="/" className="btn-gold text-sm">
           <i className="uil uil-home-alt" />
           Back to Home

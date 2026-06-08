@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useTheme } from '@/components/ThemeProvider';
 
 const schema = z.object({
   fullName:          z.string().min(3, 'Full name must be at least 3 characters'),
@@ -36,6 +37,7 @@ export default function ApplyPage() {
   const params   = useParams();
   const router   = useRouter();
   const id       = params.id as string;
+  const { theme } = useTheme();
 
   const [property, setProperty] = useState<Property | null>(null);
   const [step, setStep]         = useState(0);
@@ -96,7 +98,7 @@ export default function ApplyPage() {
 
         {/* Back link */}
         {property && (
-          <Link href={`/listings/${id}`} className="inline-flex items-center gap-1.5 text-white/45 hover:text-white/70 text-sm font-inter mb-6 transition-colors">
+          <Link href={`/listings/${id}`} className="inline-flex items-center gap-1.5 text-theme-muted hover:text-theme-secondary text-sm font-inter mb-6 transition-colors">
             <i className="uil uil-arrow-left" />
             Back to {property.title}
           </Link>
@@ -113,9 +115,9 @@ export default function ApplyPage() {
             Apply to <span className="text-gold-gradient">Rent</span>
           </h1>
           {property && (
-            <p className="text-white/50 font-inter text-sm">
-              Applying for: <span className="text-white/80 font-semibold">{property.title}</span>
-              <span className="mx-2 text-white/20">|</span>
+            <p className="text-theme-secondary font-inter text-sm">
+              Applying for: <span className="text-theme-primary font-semibold">{property.title}</span>
+              <span className="mx-2 text-theme-muted/50">|</span>
               <span className="text-gold-500 font-outfit font-semibold">LKR {property.monthlyRate.toLocaleString()}/mo</span>
             </p>
           )}
@@ -129,12 +131,12 @@ export default function ApplyPage() {
                 <div className={`step-circle ${i < step ? 'done' : i === step ? 'active' : 'pending'}`}>
                   {i < step ? <i className="uil uil-check text-sm" /> : <span>{i + 1}</span>}
                 </div>
-                <span className={`text-xs font-inter hidden sm:block ${i <= step ? 'text-white/70' : 'text-white/25'}`}>
+                <span className={`text-xs font-inter hidden sm:block ${i <= step ? 'text-theme-secondary' : 'text-theme-muted'}`}>
                   {s.label}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className="flex-1 h-px mx-2 transition-all duration-500" style={{ background: i < step ? '#F5A623' : 'rgba(255,255,255,0.08)' }} />
+                <div className="flex-1 h-px mx-2 transition-all duration-500" style={{ background: i < step ? '#F5A623' : 'var(--border-color)' }} />
               )}
             </div>
           ))}
@@ -147,7 +149,7 @@ export default function ApplyPage() {
             {/* Step 0: Personal Info */}
             {step === 0 && (
               <>
-                <h2 className="font-outfit font-bold text-white text-lg mb-1">
+                <h2 className="font-outfit font-bold text-theme-primary text-lg mb-1">
                   <i className="uil uil-user text-gold-500 mr-2" />
                   Personal Information
                 </h2>
@@ -172,7 +174,7 @@ export default function ApplyPage() {
             {/* Step 1: Financial */}
             {step === 1 && (
               <>
-                <h2 className="font-outfit font-bold text-white text-lg mb-1">
+                <h2 className="font-outfit font-bold text-theme-primary text-lg mb-1">
                   <i className="uil uil-money-bill text-gold-500 mr-2" />
                   Financial Information
                 </h2>
@@ -195,7 +197,7 @@ export default function ApplyPage() {
                     placeholder="e.g. 1800000"
                     className="form-input"
                   />
-                  <p className="text-white/35 text-xs mt-1.5 font-inter"><i className="uil uil-info-circle mr-1" />Minimum LKR 600,000 required</p>
+                  <p className="text-theme-muted text-xs mt-1.5 font-inter"><i className="uil uil-info-circle mr-1" />Minimum LKR 600,000 required</p>
                   {errors.grossAnnualIncome && <p className="text-red-400 text-xs mt-1"><i className="uil uil-exclamation-circle mr-1" />{errors.grossAnnualIncome.message}</p>}
                 </div>
               </>
@@ -204,7 +206,7 @@ export default function ApplyPage() {
             {/* Step 2: Move-in + Review */}
             {step === 2 && (
               <>
-                <h2 className="font-outfit font-bold text-white text-lg mb-1">
+                <h2 className="font-outfit font-bold text-theme-primary text-lg mb-1">
                   <i className="uil uil-calendar-alt text-gold-500 mr-2" />
                   Proposed Move-in Date
                 </h2>
@@ -215,14 +217,14 @@ export default function ApplyPage() {
                     type="date"
                     min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
                     className="form-input"
-                    style={{ colorScheme: 'dark' }}
+                    style={{ colorScheme: theme }}
                   />
                   {errors.proposedMoveIn && <p className="text-red-400 text-xs mt-1.5"><i className="uil uil-exclamation-circle mr-1" />{errors.proposedMoveIn.message}</p>}
                 </div>
 
                 {/* Review summary */}
                 <div className="mt-4 p-5 rounded-xl space-y-3" style={{ background: 'rgba(245,166,35,0.04)', border: '1px solid rgba(245,166,35,0.12)' }}>
-                  <h3 className="font-outfit font-semibold text-white/80 text-sm mb-3">Application Summary</h3>
+                  <h3 className="font-outfit font-semibold text-theme-primary text-sm mb-3">Application Summary</h3>
                   {[
                     { label: 'Full Name',        val: vals.fullName },
                     { label: 'Email',            val: vals.email },
@@ -233,8 +235,8 @@ export default function ApplyPage() {
                     { label: 'Monthly Rate',     val: property ? `LKR ${property.monthlyRate.toLocaleString()}` : '' },
                   ].map(({ label, val }) => val ? (
                     <div key={label} className="flex justify-between text-sm font-inter">
-                      <span className="text-white/40">{label}</span>
-                      <span className="text-white/80 font-medium text-right max-w-xs truncate">{val}</span>
+                      <span className="text-theme-muted">{label}</span>
+                      <span className="text-theme-primary font-medium text-right max-w-xs truncate">{val}</span>
                     </div>
                   ) : null)}
                 </div>

@@ -70,11 +70,11 @@ export default function PropertyCard({ property }: { property: Property }) {
 
       {/* Body */}
       <div className="flex flex-col flex-1 p-5">
-        <h3 className="font-outfit font-bold text-white text-base leading-tight line-clamp-2 mb-2">
+        <h3 className="font-outfit font-bold text-theme-primary text-base leading-tight line-clamp-2 mb-2">
           {property.title}
         </h3>
 
-        <div className="flex items-center gap-1.5 text-sm text-white/55 font-inter mb-4">
+        <div className="flex items-center gap-1.5 text-sm text-theme-secondary font-inter mb-4">
           <i className="uil uil-map-marker text-gold-500 text-base shrink-0" />
           <span className="truncate">{property.location}</span>
         </div>
@@ -82,16 +82,16 @@ export default function PropertyCard({ property }: { property: Property }) {
         {/* Specs row */}
         <div className="flex items-center flex-wrap gap-x-4 gap-y-1.5 mb-4">
           {property.bedrooms > 0 && (
-            <div className="flex items-center gap-1 text-xs text-white/60 font-inter">
+            <div className="flex items-center gap-1 text-xs text-theme-secondary font-inter">
               <i className="uil uil-bed text-gold-500/70 text-sm shrink-0" />
               <span>{property.bedrooms} Bed{property.bedrooms !== 1 ? 's' : ''}</span>
             </div>
           )}
-          <div className="flex items-center gap-1 text-xs text-white/60 font-inter">
+          <div className="flex items-center gap-1 text-xs text-theme-secondary font-inter">
             <i className="uil uil-bath text-gold-500/70 text-sm shrink-0" />
             <span>{property.bathrooms} Bath{property.bathrooms !== 1 ? 's' : ''}</span>
           </div>
-          <div className="flex items-center gap-1 text-xs text-white/60 font-inter">
+          <div className="flex items-center gap-1 text-xs text-theme-secondary font-inter">
             <i className="uil uil-ruler-combined text-gold-500/70 text-sm shrink-0" />
             <span>{property.areaSqft.toLocaleString()} sqft</span>
           </div>
@@ -104,7 +104,7 @@ export default function PropertyCard({ property }: { property: Property }) {
             style={{ background: 'rgba(245,166,35,0.07)', border: '1px solid rgba(245,166,35,0.12)' }}
           >
             <i className="uil uil-clock text-gold-500 text-sm shrink-0" />
-            <span className="text-white/60">
+            <span className="text-theme-secondary">
               {days === 0 ? 'Available now' : `Available in ${days} day${days !== 1 ? 's' : ''}`}
             </span>
           </div>
@@ -115,11 +115,11 @@ export default function PropertyCard({ property }: { property: Property }) {
         {/* Price & CTA Stack */}
         <div
           className="mt-2 pt-4 space-y-3.5"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ borderTop: '1px solid var(--border-color)' }}
         >
           {/* Price Row */}
           <div className="flex justify-between items-center">
-            <span className="text-xs text-white/45 font-inter">Monthly Rental</span>
+            <span className="text-xs text-theme-secondary font-inter">Monthly Rental</span>
             <span className="font-outfit font-extrabold text-base text-gold-500">
               LKR {property.monthlyRate.toLocaleString()}
             </span>
@@ -130,7 +130,7 @@ export default function PropertyCard({ property }: { property: Property }) {
             <Link
               href={`/listings/${property._id}`}
               className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-outfit font-bold transition-all duration-200"
-              style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ background: 'var(--input-bg)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}
             >
               <i className="uil uil-eye text-sm shrink-0" />
               <span>Details</span>

@@ -516,3 +516,19 @@ body {
   transition: height 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   border-radius: 0.5rem 0.5rem 0 0;
 }
+
+/* ══════════════════════════════════════════════════════════
+   THEME HELPER CLASSES
+   ══════════════════════════════════════════════════════════ */
+.text-theme-primary {
+  color: var(--text-primary) !important;
+}
+.text-theme-secondary {
+  color: var(--text-secondary) !important;
+}
+.text-theme-tertiary {
+  color: var(--text-tertiary) !important;
+}
+.text-theme-muted {
+  color: var(--text-muted) !important;
+}

@@ -66,14 +66,14 @@ function ListingsContent() {
               <h1 className="section-title text-3xl sm:text-4xl mb-2">
                 Property <span className="text-gold-gradient">Listings</span>
               </h1>
-              <p className="text-white/50 font-inter text-sm">
+              <p className="text-theme-secondary font-inter text-sm">
                 Explore verified rentals across Sri Lanka. Filter by type or availability.
               </p>
             </div>
 
             {/* Search */}
             <div className="relative sm:w-72">
-              <i className="uil uil-search absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-lg" />
+              <i className="uil uil-search absolute left-3.5 top-1/2 -translate-y-1/2 text-theme-muted text-lg" />
               <input
                 type="text"
                 placeholder="Search listings..."
@@ -85,7 +85,7 @@ function ListingsContent() {
               {inputVal && (
                 <button
                   onClick={() => { setInputVal(''); setSearchQ(''); }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-theme-muted hover:text-theme-primary"
                 >
                   <i className="uil uil-times text-lg" />
                 </button>
@@ -109,11 +109,11 @@ function ListingsContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="glass-card h-96 animate-pulse" style={{ animationDelay: `${i * 0.05}s` }}>
-                <div className="h-52 rounded-t-[1.25rem]" style={{ background: 'rgba(255,255,255,0.04)' }} />
+                <div className="h-52 rounded-t-[1.25rem]" style={{ background: 'var(--input-bg)' }} />
                 <div className="p-5 space-y-3">
-                  <div className="h-4 rounded-lg w-3/4" style={{ background: 'rgba(255,255,255,0.04)' }} />
-                  <div className="h-3 rounded-lg w-1/2" style={{ background: 'rgba(255,255,255,0.04)' }} />
-                  <div className="h-3 rounded-lg w-2/3" style={{ background: 'rgba(255,255,255,0.04)' }} />
+                  <div className="h-4 rounded-lg w-3/4" style={{ background: 'var(--input-bg)' }} />
+                  <div className="h-3 rounded-lg w-1/2" style={{ background: 'var(--input-bg)' }} />
+                  <div className="h-3 rounded-lg w-2/3" style={{ background: 'var(--input-bg)' }} />
                 </div>
               </div>
             ))}
@@ -124,8 +124,8 @@ function ListingsContent() {
               style={{ background: 'rgba(245,166,35,0.08)', border: '1px solid rgba(245,166,35,0.15)' }}>
               <i className="uil uil-search-alt text-3xl text-gold-500/50" />
             </div>
-            <h3 className="font-outfit font-bold text-white text-xl mb-2">No listings found</h3>
-            <p className="text-white/45 font-inter text-sm mb-6">
+            <h3 className="font-outfit font-bold text-theme-primary text-xl mb-2">No listings found</h3>
+            <p className="text-theme-secondary font-inter text-sm mb-6">
               Try adjusting your filters or search query.
             </p>
             <button onClick={() => { setCategory('All'); setShowAvailable(false); setSearchQ(''); setInputVal(''); }} className="btn-outline text-sm">
@@ -156,8 +156,8 @@ export default function ListingsPage() {
     <Suspense fallback={
       <div className="min-h-screen pt-28 pb-16 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-14 h-14 rounded-full border-2 border-t-gold-500 border-white/10 animate-spin mx-auto mb-4" />
-          <p className="text-white/50 font-inter">Loading listings...</p>
+          <div className="w-14 h-14 rounded-full border-2 border-t-gold-500 border-theme-muted/20 animate-spin mx-auto mb-4" />
+          <p className="text-theme-secondary font-inter">Loading listings...</p>
         </div>
       </div>
     }>

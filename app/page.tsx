@@ -106,7 +106,7 @@ export default async function HomePage() {
             Find Your Perfect{' '}
             <span className="text-gold-gradient">Property Type</span>
           </h2>
-          <p className="text-white/55 font-inter max-w-xl mx-auto leading-relaxed">
+          <p className="text-theme-secondary font-inter max-w-xl mx-auto leading-relaxed">
             From bustling city apartments to serene coastal villas, discover every style of living and working across Sri Lanka.
           </p>
         </div>
@@ -127,13 +127,13 @@ export default async function HomePage() {
               </div>
 
               <div>
-                <h3 className="font-outfit font-bold text-white text-base mb-1.5">{zone.label}</h3>
-                <p className="text-white/50 text-sm font-inter leading-relaxed">{zone.desc}</p>
+                <h3 className="font-outfit font-bold text-theme-primary text-base mb-1.5">{zone.label}</h3>
+                <p className="text-theme-secondary text-sm font-inter leading-relaxed">{zone.desc}</p>
               </div>
 
-              <div className="flex items-center justify-between mt-auto pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="flex items-center justify-between mt-auto pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
                 <span className="text-xs font-outfit font-semibold" style={{ color: zone.color }}>{zone.count}</span>
-                <i className="uil uil-arrow-right text-white/30 group-hover:text-gold-500 transition-colors text-lg" />
+                <i className="uil uil-arrow-right text-theme-muted group-hover:text-gold-500 transition-colors text-lg" />
               </div>
             </Link>
           ))}
@@ -151,7 +151,7 @@ export default async function HomePage() {
           <h2 className="section-title text-3xl sm:text-4xl mb-4">
             Featured <span className="text-gold-gradient">Properties</span>
           </h2>
-          <p className="text-white/55 font-inter max-w-xl mx-auto leading-relaxed">
+          <p className="text-theme-secondary font-inter max-w-xl mx-auto leading-relaxed">
             Explore handpicked, premium rentals available right now. Click on any listing to view detailed upfront costs.
           </p>
         </div>
@@ -182,7 +182,7 @@ export default async function HomePage() {
             <h2 className="section-title text-3xl sm:text-4xl mb-4">
               Why Choose <span className="text-gold-gradient">LankaRent</span>?
             </h2>
-            <p className="text-white/55 font-inter max-w-xl mx-auto">
+            <p className="text-theme-secondary font-inter max-w-xl mx-auto">
               The trusted rental platform built for Sri Lanka, with local knowledge and world-class technology.
             </p>
           </div>
@@ -194,8 +194,8 @@ export default async function HomePage() {
                   style={{ background: 'rgba(245,166,35,0.1)', border: '1px solid rgba(245,166,35,0.2)' }}>
                   <i className={`uil ${f.icon} text-2xl text-gold-500`} />
                 </div>
-                <h4 className="font-outfit font-bold text-white text-sm mb-2">{f.title}</h4>
-                <p className="text-white/45 text-xs font-inter leading-relaxed">{f.desc}</p>
+                <h4 className="font-outfit font-bold text-theme-primary text-sm mb-2">{f.title}</h4>
+                <p className="text-theme-secondary text-xs font-inter leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -219,7 +219,7 @@ export default async function HomePage() {
               Ready to Find Your<br />
               <span className="text-gold-gradient">Perfect Rental?</span>
             </h2>
-            <p className="text-white/60 font-inter mb-8 max-w-md mx-auto">
+            <p className="text-theme-secondary font-inter mb-8 max-w-md mx-auto">
               Browse verified listings across Sri Lanka and submit your application in under 5 minutes.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">

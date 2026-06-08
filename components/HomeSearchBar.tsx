@@ -18,7 +18,7 @@ export default function HomeSearchBar() {
   return (
     <div className="flex flex-col sm:flex-row gap-3">
       <div className="flex-1 relative">
-        <i className="uil uil-search absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-xl" />
+        <i className="uil uil-search absolute left-4 top-1/2 -translate-y-1/2 text-xl" style={{ color: 'var(--text-tertiary)' }} />
         <input
           type="text"
           placeholder="Search by location, district or property name..."
