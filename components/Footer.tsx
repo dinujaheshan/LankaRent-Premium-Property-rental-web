@@ -25,7 +25,7 @@ const districts = ['Colombo', 'Kandy', 'Galle', 'Negombo', 'Batticaloa', 'Nuwara
 
 export default function Footer() {
   return (
-    <footer className="relative mt-24" style={{ background: '#020818', borderTop: '2px solid rgba(245,166,35,0.25)', boxShadow: '0 -10px 40px rgba(0,0,0,0.4)' }}>
+    <footer className="relative mt-24" style={{ background: 'var(--footer-bg)', borderTop: '2px solid var(--footer-border)', boxShadow: '0 -10px 40px rgba(0,0,0,0.4)' }}>
       {/* Gold glow line */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-0.5" style={{ background: 'linear-gradient(90deg,transparent,#F5A623,transparent)' }} />
 

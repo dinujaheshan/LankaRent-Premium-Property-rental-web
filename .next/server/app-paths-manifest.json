@@ -1,8 +1,0 @@
-{
-  "/help/page": "app/help/page.js",
-  "/page": "app/page.js",
-  "/listings/page": "app/listings/page.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/admin/dashboard/page": "app/admin/dashboard/page.js",
-  "/admin/login/page": "app/admin/login/page.js"
-}

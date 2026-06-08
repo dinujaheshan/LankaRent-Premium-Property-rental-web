@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import ConditionalFooter from '@/components/ConditionalFooter';
+import ThemeProvider from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'LankaRent | Premium Property Rentals in Sri Lanka',
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link
@@ -27,11 +28,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
           href="https://unicons.iconscout.com/release/v4.0.8/css/solid.css"
         />
+        {/* Prevent theme flash: set data-theme before React hydrates */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var t = localStorage.getItem('lankarent-theme');
+                  if (t === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                  } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                  }
+                } catch(e) {
+                  document.documentElement.setAttribute('data-theme', 'light');
+                }
+              })();
+            `,
+          }}
+        />
       </head>
       <body>
-        <Navbar />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
+        <ThemeProvider>
+          <Navbar />
+          <main className="min-h-screen">{children}</main>
+          <ConditionalFooter />
+        </ThemeProvider>
       </body>
     </html>
   );
