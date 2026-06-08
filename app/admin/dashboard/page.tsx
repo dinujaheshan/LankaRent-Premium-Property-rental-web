@@ -480,7 +480,7 @@ export default function AdminDashboardPage() {
             <button
               onClick={handleLogout}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-outfit font-semibold transition-all duration-200"
-              style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}
+              style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: theme === 'light' ? '#dc2626' : '#f87171' }}
             >
               <i className="uil uil-sign-out-alt text-sm" />
               <span>Logout</span>
@@ -611,7 +611,7 @@ export default function AdminDashboardPage() {
                     <div className="space-y-4 font-inter">
                       <div>
                         <div className="text-2xs uppercase tracking-wider font-semibold" style={{ color: 'var(--text-tertiary)' }}>Total Managed Volume</div>
-                        <div className="text-2xl font-outfit font-black text-gold-500 mt-1">LKR {totalRevenuePotential.toLocaleString()}/mo</div>
+                        <div className="text-2xl font-outfit font-black mt-1" style={{ color: theme === 'light' ? '#b45309' : 'var(--gold-500)' }}>LKR {totalRevenuePotential.toLocaleString()}/mo</div>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-4 pt-2 border-t" style={{ borderColor: 'var(--border-color)' }}>
@@ -666,8 +666,8 @@ export default function AdminDashboardPage() {
                           <div className="text-[10px] mt-1 text-emerald-500/80 font-semibold uppercase">Approved</div>
                         </div>
                         <div className="p-2.5 rounded-xl border border-amber-500/10" style={{ background: 'rgba(245,166,35,0.04)' }}>
-                          <div className="font-bold text-amber-500 text-base">{reviewApps}</div>
-                          <div className="text-[10px] mt-1 text-amber-500/80 font-semibold uppercase">In Review</div>
+                          <div className="font-bold text-base" style={{ color: theme === 'light' ? '#b45309' : '#f59e0b' }}>{reviewApps}</div>
+                          <div className="text-[10px] mt-1 font-semibold uppercase" style={{ color: theme === 'light' ? '#b45309' : '#f59e0b' }}>In Review</div>
                         </div>
                         <div className="p-2.5 rounded-xl border border-red-500/10" style={{ background: 'rgba(239,68,68,0.04)' }}>
                           <div className="font-bold text-red-500 text-base">{rejectedApps}</div>
@@ -931,7 +931,7 @@ export default function AdminDashboardPage() {
                             className="text-[10px] font-outfit font-bold px-2.5 py-1.5 rounded-lg transition-all duration-200 w-28 text-center"
                             style={inq.isRead
                               ? { background: 'rgba(0,0,0,0.05)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }
-                              : { background: 'rgba(245,166,35,0.1)', color: '#F5A623', border: '1px solid rgba(245,166,35,0.25)' }
+                              : { background: 'rgba(245,166,35,0.1)', color: theme === 'light' ? '#b45309' : 'var(--gold-500)', border: '1px solid rgba(245,166,35,0.25)' }
                             }
                           >
                             {inq.isRead ? 'Mark Unread' : 'Mark Read'}
@@ -1017,7 +1017,7 @@ export default function AdminDashboardPage() {
                               </span>
                             </td>
                             <td className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{prop.location}</td>
-                            <td className="font-outfit font-bold text-gold-500 text-sm">
+                            <td className="font-outfit font-bold text-sm" style={{ color: theme === 'light' ? '#b45309' : 'var(--gold-500)' }}>
                               LKR {prop.monthlyRate.toLocaleString()}
                             </td>
                             <td>
@@ -1315,7 +1315,7 @@ export default function AdminDashboardPage() {
 
               {/* Error display */}
               {crudError && (
-                <div className="p-3 rounded-lg text-xs text-red-500 bg-red-500/10 border border-red-500/20">
+                <div className="p-3 rounded-lg text-xs border" style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.2)', color: 'var(--status-rejected-text)' }}>
                   <i className="uil uil-exclamation-triangle mr-1.5" />
                   {crudError}
                 </div>

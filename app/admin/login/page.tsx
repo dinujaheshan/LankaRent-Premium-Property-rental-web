@@ -110,8 +110,8 @@ export default function AdminLoginPage() {
             </div>
 
             {error && (
-              <div className="p-3.5 rounded-xl text-sm text-red-500 flex items-center gap-2"
-                style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+              <div className="p-3.5 rounded-xl text-sm flex items-center gap-2 border"
+                style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.2)', color: 'var(--status-rejected-text)' }}>
                 <i className="uil uil-exclamation-triangle shrink-0" />
                 {error}
               </div>
