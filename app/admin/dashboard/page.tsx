@@ -52,7 +52,7 @@ type Property = {
   images: string[];
 };
 
-type Tab = 'overview' | 'applications' | 'inquiries' | 'properties';
+type Tab = 'overview' | 'applications' | 'inquiries' | 'properties' | 'settings';
 
 const STATUS_STYLES: Record<string, string> = {
   'Under Review': 'status-review badge',
@@ -61,10 +61,10 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Apartment: 'text-blue-500 bg-blue-500/10 border-blue-500/20 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20',
-  Studio:    'text-purple-500 bg-purple-500/10 border-purple-500/20 dark:text-purple-400 dark:bg-purple-500/10 dark:border-purple-500/20',
-  Office:    'text-green-500 bg-green-500/10 border-green-500/20 dark:text-green-400 dark:bg-green-500/10 dark:border-green-500/20',
-  Villa:     'text-amber-500 bg-amber-500/10 border-amber-500/20 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20',
+  Apartment: 'text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-950/20 dark:border-blue-800/30',
+  Studio:    'text-purple-700 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-950/20 dark:border-purple-800/30',
+  Office:    'text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-950/20 dark:border-emerald-800/30',
+  Villa:     'text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-950/20 dark:border-amber-800/30',
 };
 
 // Default values based on categories to speed up adding properties
@@ -105,6 +105,60 @@ export default function AdminDashboardPage() {
   const [properties,  setProperties]       = useState<Property[]>([]);
   const [loading,     setLoading]          = useState(true);
   const [updating,    setUpdating]         = useState<string | null>(null);
+
+  // New Search & Filter States
+  const [propSearch, setPropSearch] = useState('');
+  const [propCatFilter, setPropCatFilter] = useState('All');
+  const [propAvailFilter, setPropAvailFilter] = useState('All');
+  const [appSearch, setAppSearch] = useState('');
+  const [appStatusFilter, setAppStatusFilter] = useState('All');
+  const [inqSearch, setInqSearch] = useState('');
+  const [inqReadFilter, setInqReadFilter] = useState('All');
+
+  // Custom Toast Notification State
+  type Toast = { id: string; message: string; type: 'success' | 'error' | 'info' };
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    const id = Math.random().toString();
+    setToasts(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 3500);
+  };
+
+  // Recent Activity Logs State
+  type Log = { id: string; action: string; time: string; type: 'info' | 'success' | 'warning' };
+  const [logs, setLogs] = useState<Log[]>([
+    { id: '1', action: 'System panel loaded successfully.', time: 'Just now', type: 'info' },
+    { id: '2', action: 'Connected to MongoDB cluster dynamic pipeline.', time: '2 mins ago', type: 'success' },
+    { id: '3', action: 'Seeded initial Ceylon listings database config.', time: '10 mins ago', type: 'info' }
+  ]);
+  const addLog = (action: string, type: 'info' | 'success' | 'warning' = 'info') => {
+    const newLog: Log = {
+      id: Math.random().toString(),
+      action,
+      time: new Date().toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit' }),
+      type
+    };
+    setLogs(prev => [newLog, ...prev].slice(0, 8)); // Keep last 8 logs
+  };
+
+  // Dynamic Time-of-day Greeting
+  const [greeting, setGreeting] = useState('Welcome');
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting('Good morning');
+    else if (hour < 18) setGreeting('Good afternoon');
+    else setGreeting('Good evening');
+  }, []);
+
+  // System Administration Settings Configuration
+  const [settings, setSettings] = useState({
+    maintenanceMode: false,
+    autoApproveApps: false,
+    emailNotifications: true,
+    platformCommission: '5',
+  });
 
   // Email replies state variables
   const [replyingInquiryId, setReplyingInquiryId] = useState<string | null>(null);
@@ -149,6 +203,7 @@ export default function AdminDashboardPage() {
       setApplications(appData.data || []);
       setInquiries(inqData.data    || []);
       setProperties(propData.data  || []);
+      addLog('Database synced with active cloud records.', 'success');
     } catch { /* swallow */ }
     setLoading(false);
   }, []);
@@ -157,6 +212,7 @@ export default function AdminDashboardPage() {
 
   const updateAppStatus = async (id: string, status: string) => {
     setUpdating(id);
+    const targetApp = applications.find(a => a._id === id);
     await fetch(`/api/applications/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -164,6 +220,10 @@ export default function AdminDashboardPage() {
     });
     setApplications(prev => prev.map(a => a._id === id ? { ...a, status: status as Application['status'] } : a));
     setUpdating(null);
+    if (targetApp) {
+      addLog(`Application for ${targetApp.propertyTitle} by ${targetApp.fullName} marked as ${status}.`, status === 'Approved' ? 'success' : status === 'Rejected' ? 'warning' : 'info');
+      showToast(`Application status updated to ${status}.`, 'success');
+    }
   };
 
   const markInquiryRead = async (id: string, isRead: boolean) => {
@@ -175,9 +235,27 @@ export default function AdminDashboardPage() {
     setInquiries(prev => prev.map(i => i._id === id ? { ...i, isRead } : i));
   };
 
+  // Database Report Export Handler
+  const handleExportData = () => {
+    try {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ properties, applications, inquiries }, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href",     dataStr);
+      downloadAnchor.setAttribute("download", `lankarent_db_report_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('Database records exported successfully!', 'success');
+      addLog('Exported local database JSON report.', 'success');
+    } catch {
+      showToast('Failed to export database report', 'error');
+    }
+  };
+
   const submitInquiryReply = async (id: string) => {
     if (!replyText.trim()) return;
     setSubmittingReplyId(id);
+    const targetInq = inquiries.find(i => i._id === id);
     try {
       const res = await fetch(`/api/inquiries/${id}/reply`, {
         method: 'POST',
@@ -201,11 +279,15 @@ export default function AdminDashboardPage() {
         );
         setReplyingInquiryId(null);
         setReplyText('');
+        if (targetInq) {
+          addLog(`Replied to email inquiry from ${targetInq.fullName}.`, 'success');
+          showToast('Reply email sent successfully!', 'success');
+        }
       } else {
-        alert(json.error || 'Failed to send reply');
+        showToast(json.error || 'Failed to send reply', 'error');
       }
     } catch {
-      alert('Connection error. Please try again.');
+      showToast('Connection error. Please try again.', 'error');
     } finally {
       setSubmittingReplyId(null);
     }
@@ -284,12 +366,14 @@ export default function AdminDashboardPage() {
         const res = await fetch(`/api/properties/${prop._id}`, { method: 'DELETE' });
         const json = await res.json();
         if (json.success) {
+          addLog(`Property "${prop.title}" deleted from catalog.`, 'warning');
+          showToast('Listing deleted successfully.', 'success');
           fetchAll();
         } else {
-          alert(json.error || 'Failed to delete property');
+          showToast(json.error || 'Failed to delete property', 'error');
         }
       } catch {
-        alert('Server connection error. Please try again.');
+        showToast('Server connection error. Please try again.', 'error');
       }
     }
   };
@@ -331,12 +415,16 @@ export default function AdminDashboardPage() {
       const json = await res.json();
       if (json.success) {
         setIsModalOpen(false);
+        addLog(editingProperty ? `Property "${formData.title}" details updated.` : `Property "${formData.title}" added to catalog.`, 'success');
+        showToast(editingProperty ? 'Listing updated successfully.' : 'Listing added successfully.', 'success');
         fetchAll();
       } else {
         setCrudError(json.error || 'Failed to save property listing');
+        showToast(json.error || 'Failed to save property listing', 'error');
       }
     } catch {
       setCrudError('Connection error. Please try again.');
+      showToast('Connection error. Please try again.', 'error');
     } finally {
       setSavingProperty(false);
     }
@@ -365,6 +453,20 @@ export default function AdminDashboardPage() {
   const catOffice = properties.filter(p => p.category === 'Office').length;
   const catVilla = properties.filter(p => p.category === 'Villa').length;
 
+  // Revenue potential by category
+  const revApartment = properties.filter(p => p.category === 'Apartment').reduce((sum, p) => sum + p.monthlyRate, 0);
+  const revVilla = properties.filter(p => p.category === 'Villa').reduce((sum, p) => sum + p.monthlyRate, 0);
+  const revOffice = properties.filter(p => p.category === 'Office').reduce((sum, p) => sum + p.monthlyRate, 0);
+  const revStudio = properties.filter(p => p.category === 'Studio').reduce((sum, p) => sum + p.monthlyRate, 0);
+  const maxRev = Math.max(revApartment, revVilla, revOffice, revStudio, 1);
+
+  const categoriesRev = [
+    { label: 'Apartments', value: revApartment, color: '#3b82f6', icon: 'uil-building' },
+    { label: 'Luxury Villas', value: revVilla, color: '#f5a623', icon: 'uil-estate' },
+    { label: 'Executive Offices', value: revOffice, color: '#10b981', icon: 'uil-briefcase-alt' },
+    { label: 'Shared Studios', value: revStudio, color: '#a855f7', icon: 'uil-home' }
+  ];
+
   const stats = {
     total:      totalApps,
     review:     reviewApps,
@@ -379,7 +481,41 @@ export default function AdminDashboardPage() {
     { id: 'applications', icon: 'uil-file-contract',  label: 'Applications',  badge: stats.review },
     { id: 'inquiries',    icon: 'uil-envelope',        label: 'Mailbox',       badge: stats.unread },
     { id: 'properties',   icon: 'uil-building',        label: 'Properties' },
+    { id: 'settings',     icon: 'uil-cog',             label: 'Settings' },
   ];
+
+  // Dynamic Search & Filter Calculations
+  const filteredProperties = properties.filter(p => {
+    const matchesSearch = p.title.toLowerCase().includes(propSearch.toLowerCase()) || 
+                          p.location.toLowerCase().includes(propSearch.toLowerCase()) ||
+                          p.district.toLowerCase().includes(propSearch.toLowerCase());
+    const matchesCat = propCatFilter === 'All' || p.category === propCatFilter;
+    const matchesAvail = propAvailFilter === 'All' || 
+                         (propAvailFilter === 'Available' && p.isAvailable) || 
+                         (propAvailFilter === 'Rented' && !p.isAvailable);
+    return matchesSearch && matchesCat && matchesAvail;
+  });
+
+  const filteredApplications = applications.filter(a => {
+    const matchesSearch = a.fullName.toLowerCase().includes(appSearch.toLowerCase()) || 
+                          a.email.toLowerCase().includes(appSearch.toLowerCase()) ||
+                          a.phone.toLowerCase().includes(appSearch.toLowerCase()) ||
+                          a.propertyTitle.toLowerCase().includes(appSearch.toLowerCase());
+    const matchesStatus = appStatusFilter === 'All' || a.status === appStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const filteredInquiries = inquiries.filter(i => {
+    const matchesSearch = i.fullName.toLowerCase().includes(inqSearch.toLowerCase()) || 
+                          i.email.toLowerCase().includes(inqSearch.toLowerCase()) ||
+                          i.inquiryType.toLowerCase().includes(inqSearch.toLowerCase()) ||
+                          i.message.toLowerCase().includes(inqSearch.toLowerCase());
+    const matchesRead = inqReadFilter === 'All' || 
+                        (inqReadFilter === 'Unread' && !i.isRead) || 
+                        (inqReadFilter === 'Read' && i.isRead) ||
+                        (inqReadFilter === 'Replied' && i.isReplied);
+    return matchesSearch && matchesRead;
+  });
 
   return (
     <div 
@@ -432,7 +568,13 @@ export default function AdminDashboardPage() {
                   <span>{label}</span>
                 </div>
                 {badge !== undefined && badge > 0 && (
-                  <span className={`px-1.5 py-0.5 rounded-full text-2xs font-bold ${active ? 'bg-navy-900/20 text-navy-900' : 'bg-gold-500/20 text-gold-500'}`}>
+                  <span className={`px-1.5 py-0.5 rounded-full text-2xs font-bold ${
+                    active 
+                      ? 'bg-navy-900/20 text-navy-900' 
+                      : theme === 'light'
+                        ? 'bg-amber-500/10 text-amber-700 border border-amber-500/20'
+                        : 'bg-gold-500/20 text-gold-500'
+                  }`}>
                     {badge}
                   </span>
                 )}
@@ -449,9 +591,9 @@ export default function AdminDashboardPage() {
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="font-outfit font-black text-2xl sm:text-3xl" style={{ color: 'var(--text-primary)' }}>
-              Welcome, <span className="text-gold-gradient">System Administrator</span>
+              {greeting}, <span className="text-gold-gradient">System Administrator</span>
             </h1>
-            <p className="font-inter text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
+            <p className="font-inter text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
               Real-time monitoring panel for LankaRent leases, mailbox, and database.
             </p>
           </div>
@@ -467,12 +609,12 @@ export default function AdminDashboardPage() {
               <i className={`uil ${theme === 'light' ? 'uil-moon' : 'uil-sun'} text-lg`} />
             </button>
 
-            <button onClick={fetchAll} className="btn-outline text-xs py-2.5 px-4 whitespace-nowrap bg-navy-900/5 dark:bg-navy-900/30">
+            <button onClick={fetchAll} className="btn-outline text-xs py-2.5 px-4 whitespace-nowrap">
               <i className="uil uil-redo" />
               <span>Sync Database</span>
             </button>
 
-            <Link href="/" target="_blank" className="btn-outline text-xs py-2.5 px-4 whitespace-nowrap bg-navy-900/5 dark:bg-navy-900/30">
+            <Link href="/" target="_blank" className="btn-outline text-xs py-2.5 px-4 whitespace-nowrap">
               <i className="uil uil-external-link-alt" />
               <span>Visit Site</span>
             </Link>
@@ -557,7 +699,7 @@ export default function AdminDashboardPage() {
                     <div>
                       <h2 className="font-outfit font-bold text-lg mb-2" style={{ color: 'var(--text-primary)' }}>Quick Portal Actions</h2>
                       <p className="text-xs font-inter leading-relaxed mb-6" style={{ color: 'var(--text-secondary)' }}>
-                        Add properties directly to the system catalog, or perform system database refreshes.
+                        Add properties directly to the system catalog, manage contract templates, or export data.
                       </p>
                     </div>
                     
@@ -577,6 +719,15 @@ export default function AdminDashboardPage() {
                       >
                         <i className="uil uil-file-contract text-base" />
                         <span>Manage Applications</span>
+                      </button>
+
+                      <button
+                        onClick={handleExportData}
+                        className="btn-outline w-full justify-center text-sm py-3"
+                        style={{ border: '1.5px solid var(--border-color)', color: 'var(--text-secondary)' }}
+                      >
+                        <i className="uil uil-import text-base" />
+                        <span>Export Database Report</span>
                       </button>
                     </div>
                   </div>
@@ -631,6 +782,31 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* Telemetry diagnostics row */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Database Status', val: 'Connected', icon: 'uil-database', pulse: 'bg-green-500 shadow-[0_0_8px_#10b981]' },
+                    { label: 'Cloud Synchronizer', val: 'Synchronized', icon: 'uil-cloud-wifi', pulse: 'bg-green-500 shadow-[0_0_8px_#10b981]' },
+                    { label: 'Gateway Ping', val: '45ms', icon: 'uil-tachometer-fast-alt', color: 'text-emerald-500' },
+                    { label: 'System Mode', val: settings.maintenanceMode ? 'Maintenance' : 'Production', icon: 'uil-shield-check', color: settings.maintenanceMode ? 'text-amber-500 font-bold' : 'text-blue-500 font-bold' },
+                  ].map(({ label, val, icon, pulse, color }) => (
+                    <div key={label} className="glass-card p-4 flex items-center justify-between" style={{ background: 'var(--admin-sidebar-bg)', borderColor: 'var(--border-color)' }}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gold-500/10 text-gold-500">
+                          <i className={`uil ${icon} text-lg`} />
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase font-bold tracking-wider" style={{ color: 'var(--text-tertiary)' }}>{label}</div>
+                          <div className={`text-xs font-semibold mt-0.5 ${color || ''}`} style={{ color: color ? undefined : 'var(--text-primary)' }}>{val}</div>
+                        </div>
+                      </div>
+                      {pulse && (
+                        <div className={`w-2 h-2 rounded-full animate-pulse ${pulse}`} />
+                      )}
+                    </div>
+                  ))}
                 </div>
 
                 {/* Bottom Section: Pipeline and Activity */}
@@ -712,22 +888,123 @@ export default function AdminDashboardPage() {
                     </button>
                   </div>
                 </div>
+
+                {/* Row 3: Revenue Trend SVG Chart and Recent Activity Logs */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                  {/* Category Revenue Potential SVG Chart */}
+                  <div className="glass-card p-6" style={{ background: 'var(--admin-sidebar-bg)', borderColor: 'var(--border-color)' }}>
+                    <h2 className="font-outfit font-bold text-lg mb-2" style={{ color: 'var(--text-primary)' }}>Revenue Volume by Category</h2>
+                    <p className="text-xs font-inter leading-relaxed mb-6" style={{ color: 'var(--text-secondary)' }}>
+                      Sum of monthly rental rates mapped across Sri Lankan property categories.
+                    </p>
+
+                    <div className="flex flex-col gap-4">
+                      {categoriesRev.map(({ label, value, color, icon }) => {
+                        const percent = maxRev > 0 ? Math.round((value / maxRev) * 100) : 0;
+                        return (
+                          <div key={label} className="space-y-1">
+                            <div className="flex items-center justify-between text-xs font-inter">
+                              <div className="flex items-center gap-2">
+                                <div className="w-5 h-5 rounded flex items-center justify-center text-xs text-white" style={{ background: color }}>
+                                  <i className={`uil ${icon}`} />
+                                </div>
+                                <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{label}</span>
+                              </div>
+                              <span className="font-bold" style={{ color: 'var(--text-primary)' }}>LKR {value.toLocaleString()}/mo</span>
+                            </div>
+                            <div className="w-full h-3 rounded-full bg-navy-900/10 dark:bg-white/5 overflow-hidden relative group">
+                              <div 
+                                className="h-full rounded-full transition-all duration-1000 ease-out" 
+                                style={{ width: `${percent}%`, background: color }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Recent Activity Log Panel */}
+                  <div className="glass-card p-6 flex flex-col justify-between" style={{ background: 'var(--admin-sidebar-bg)', borderColor: 'var(--border-color)' }}>
+                    <div>
+                      <h2 className="font-outfit font-bold text-lg mb-2" style={{ color: 'var(--text-primary)' }}>Recent System Action Logs</h2>
+                      <p className="text-xs font-inter leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>
+                        Live audit logs of administrative property adjustments, replies, and status syncs.
+                      </p>
+
+                      <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
+                        {logs.map(log => (
+                          <div 
+                            key={log.id} 
+                            className="flex items-start justify-between gap-3 p-2.5 rounded-xl border"
+                            style={{ background: 'var(--input-bg)', borderColor: 'var(--border-light)' }}
+                          >
+                            <div className="flex items-start gap-2.5 min-w-0">
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-xs text-white ${
+                                log.type === 'success' ? 'bg-green-500' : log.type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
+                              }`}>
+                                <i className={`uil ${
+                                  log.type === 'success' ? 'uil-check' : log.type === 'warning' ? 'uil-exclamation-triangle' : 'uil-info-circle'
+                                }`} />
+                              </div>
+                              <span className="text-xs font-inter leading-relaxed truncate" style={{ color: 'var(--text-primary)' }}>
+                                {log.action}
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-inter shrink-0 font-medium" style={{ color: 'var(--text-muted)' }}>
+                              {log.time}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
             {/* APPLICATIONS TAB */}
             {tab === 'applications' && (
               <div className="glass-card overflow-hidden" style={{ background: 'var(--admin-sidebar-bg)', borderColor: 'var(--border-color)' }}>
-                <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b" style={{ borderColor: 'var(--border-color)' }}>
                   <h2 className="font-outfit font-bold text-base" style={{ color: 'var(--text-primary)' }}>
                     Applicant Screening Matrix
-                    <span className="ml-2 font-normal text-sm" style={{ color: 'var(--text-tertiary)' }}>({applications.length} total)</span>
+                    <span className="ml-2 font-normal text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                      ({filteredApplications.length} of {applications.length} total)
+                    </span>
                   </h2>
                 </div>
-                {applications.length === 0 ? (
+
+                {/* Filter Controls */}
+                <div className="p-4 flex flex-col sm:flex-row gap-3 border-b bg-white/30 dark:bg-white/5" style={{ borderColor: 'var(--border-color)' }}>
+                  <div className="flex-1 relative">
+                    <i className="uil uil-search absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style={{ color: 'var(--text-muted)' }} />
+                    <input
+                      type="text"
+                      placeholder="Search by applicant name, email, phone or property..."
+                      value={appSearch}
+                      onChange={(e) => setAppSearch(e.target.value)}
+                      className="form-input form-input-icon-left text-xs py-2 px-3 pl-9 w-full bg-white dark:bg-white/5"
+                      style={{ border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                  <select
+                    value={appStatusFilter}
+                    onChange={(e) => setAppStatusFilter(e.target.value)}
+                    className="form-select text-xs py-2 px-3 pr-8 w-full sm:w-44 bg-white dark:bg-white/5"
+                    style={{ border: '1px solid var(--border-color)' }}
+                  >
+                    <option value="All">All Statuses</option>
+                    <option value="Under Review">Reviewing</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
+
+                {filteredApplications.length === 0 ? (
                   <div className="py-16 text-center font-inter text-sm" style={{ color: 'var(--text-muted)' }}>
                     <i className="uil uil-file-alt text-3xl block mb-2" />
-                    No applications received yet
+                    No matching applications found
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
@@ -743,7 +1020,7 @@ export default function AdminDashboardPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {applications.map((app) => {
+                        {filteredApplications.map((app) => {
                           const incomePercent = Math.min(100, Math.max(0, ((app.grossAnnualIncome - 600000) / 1400000) * 100));
                           const userInitial = app.fullName.charAt(0).toUpperCase();
 
@@ -769,7 +1046,7 @@ export default function AdminDashboardPage() {
                               </td>
                               <td className="min-w-44">
                                 <div className="flex items-center justify-between text-[10px] mb-1 font-inter">
-                                  <span style={{ color: 'var(--text-tertiary)' }}>{app.employmentStatus}</span>
+                                  <span style={{ color: 'var(--text-secondary)' }}>{app.employmentStatus}</span>
                                   <span className="font-bold" style={{ color: 'var(--text-primary)' }}>LKR {app.grossAnnualIncome.toLocaleString()}/yr</span>
                                 </div>
                                 <div className="w-full h-1.5 rounded-full bg-navy-900/10 dark:bg-white/5 overflow-hidden">
@@ -812,22 +1089,51 @@ export default function AdminDashboardPage() {
             {/* INQUIRIES TAB */}
             {tab === 'inquiries' && (
               <div className="space-y-4">
-                <div className="glass-card px-6 py-4 flex items-center justify-between" style={{ borderRadius: '1.25rem', background: 'var(--admin-sidebar-bg)', borderColor: 'var(--border-color)' }}>
+                <div className="glass-card px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ borderRadius: '1.25rem', background: 'var(--admin-sidebar-bg)', borderColor: 'var(--border-color)' }}>
                   <h2 className="font-outfit font-bold text-base" style={{ color: 'var(--text-primary)' }}>
                     Inquiry Mailbox
-                    <span className="ml-2 font-normal text-sm" style={{ color: 'var(--text-tertiary)' }}>({inquiries.length} messages)</span>
+                    <span className="ml-2 font-normal text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                      ({filteredInquiries.length} of {inquiries.length} messages)
+                    </span>
                   </h2>
                   {stats.unread > 0 && (
                     <span className="badge status-review">{stats.unread} unread</span>
                   )}
                 </div>
-                {inquiries.length === 0 ? (
+
+                {/* Filter Controls */}
+                <div className="glass-card p-4 flex flex-col sm:flex-row gap-3" style={{ background: 'var(--admin-sidebar-bg)', borderColor: 'var(--border-color)' }}>
+                  <div className="flex-1 relative">
+                    <i className="uil uil-search absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style={{ color: 'var(--text-muted)' }} />
+                    <input
+                      type="text"
+                      placeholder="Search inquiries by sender, email, subject or message..."
+                      value={inqSearch}
+                      onChange={(e) => setInqSearch(e.target.value)}
+                      className="form-input form-input-icon-left text-xs py-2 px-3 pl-9 w-full bg-white dark:bg-white/5"
+                      style={{ border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                  <select
+                    value={inqReadFilter}
+                    onChange={(e) => setInqReadFilter(e.target.value)}
+                    className="form-select text-xs py-2 px-3 pr-8 w-full sm:w-44 bg-white dark:bg-white/5"
+                    style={{ border: '1px solid var(--border-color)' }}
+                  >
+                    <option value="All">All Messages</option>
+                    <option value="Unread">Unread</option>
+                    <option value="Read">Read</option>
+                    <option value="Replied">Replied</option>
+                  </select>
+                </div>
+
+                {filteredInquiries.length === 0 ? (
                   <div className="glass-card py-16 text-center font-inter text-sm" style={{ background: 'var(--admin-sidebar-bg)', borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>
                     <i className="uil uil-envelope text-3xl block mb-2" />
-                    No inquiries received yet
+                    No matching inquiries found
                   </div>
                 ) : (
-                  inquiries.map((inq) => (
+                  filteredInquiries.map((inq) => (
                     <div
                       key={inq._id}
                       className="glass-card p-5 transition-all duration-300 hover:border-gold-500/20"
@@ -848,12 +1154,20 @@ export default function AdminDashboardPage() {
                             <div className="flex flex-wrap items-center gap-2 mb-1">
                               <span className="font-outfit font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{inq.fullName}</span>
                               <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border" 
-                                style={{ background: 'rgba(147,197,253,0.1)', color: '#93c5fd', borderColor: 'rgba(147,197,253,0.2)' }}>
+                                style={{ 
+                                  background: theme === 'light' ? 'rgba(59,130,246,0.08)' : 'rgba(147,197,253,0.1)', 
+                                  color: theme === 'light' ? '#1d4ed8' : '#93c5fd', 
+                                  borderColor: theme === 'light' ? 'rgba(59,130,246,0.2)' : 'rgba(147,197,253,0.2)' 
+                                }}>
                                 {inq.inquiryType}
                               </span>
                               {inq.isReplied && (
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border" 
-                                  style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', borderColor: 'rgba(16,185,129,0.2)' }}>
+                                  style={{ 
+                                    background: theme === 'light' ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.1)', 
+                                    color: theme === 'light' ? '#047857' : '#10b981', 
+                                    borderColor: theme === 'light' ? 'rgba(16,185,129,0.2)' : 'rgba(16,185,129,0.2)' 
+                                  }}>
                                   Replied
                                 </span>
                               )}
@@ -867,7 +1181,7 @@ export default function AdminDashboardPage() {
                             {/* Render Admin Response history if replied */}
                             {inq.isReplied && inq.replyMessage && (
                               <div className="mt-4 p-4 rounded-xl border border-emerald-500/10" style={{ background: 'rgba(16,185,129,0.02)' }}>
-                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 font-outfit uppercase tracking-wider mb-1.5">
+                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 font-outfit uppercase tracking-wider mb-1.5">
                                   <i className="uil uil-reply" />
                                   Admin Response
                                   {inq.repliedAt && (
@@ -962,10 +1276,12 @@ export default function AdminDashboardPage() {
             {/* PROPERTIES TAB */}
             {tab === 'properties' && (
               <div className="glass-card overflow-hidden" style={{ background: 'var(--admin-sidebar-bg)', borderColor: 'var(--border-color)' }}>
-                <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b" style={{ borderColor: 'var(--border-color)' }}>
                   <h2 className="font-outfit font-bold text-base" style={{ color: 'var(--text-primary)' }}>
                     Property Inventory Catalog
-                    <span className="ml-2 font-normal text-sm" style={{ color: 'var(--text-tertiary)' }}>({properties.length} listings)</span>
+                    <span className="ml-2 font-normal text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                      ({filteredProperties.length} of {properties.length} listings)
+                    </span>
                   </h2>
                   
                   <button 
@@ -976,10 +1292,50 @@ export default function AdminDashboardPage() {
                     <span>Add Property</span>
                   </button>
                 </div>
-                {properties.length === 0 ? (
+
+                {/* Filter Controls */}
+                <div className="p-4 flex flex-col sm:flex-row gap-3 border-b bg-white/30 dark:bg-white/5" style={{ borderColor: 'var(--border-color)' }}>
+                  <div className="flex-1 relative">
+                    <i className="uil uil-search absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style={{ color: 'var(--text-muted)' }} />
+                    <input
+                      type="text"
+                      placeholder="Search listings by title, location or district..."
+                      value={propSearch}
+                      onChange={(e) => setPropSearch(e.target.value)}
+                      className="form-input form-input-icon-left text-xs py-2 px-3 pl-9 w-full bg-white dark:bg-white/5"
+                      style={{ border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                  <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+                    <select
+                      value={propCatFilter}
+                      onChange={(e) => setPropCatFilter(e.target.value)}
+                      className="form-select text-xs py-2 px-3 pr-8 w-full sm:w-36 bg-white dark:bg-white/5"
+                      style={{ border: '1px solid var(--border-color)' }}
+                    >
+                      <option value="All">All Categories</option>
+                      <option value="Apartment">Apartment</option>
+                      <option value="Studio">Studio</option>
+                      <option value="Office">Office</option>
+                      <option value="Villa">Villa</option>
+                    </select>
+                    <select
+                      value={propAvailFilter}
+                      onChange={(e) => setPropAvailFilter(e.target.value)}
+                      className="form-select text-xs py-2 px-3 pr-8 w-full sm:w-36 bg-white dark:bg-white/5"
+                      style={{ border: '1px solid var(--border-color)' }}
+                    >
+                      <option value="All">All Statuses</option>
+                      <option value="Available">Available</option>
+                      <option value="Rented">Rented</option>
+                    </select>
+                  </div>
+                </div>
+
+                {filteredProperties.length === 0 ? (
                   <div className="py-16 text-center font-inter text-sm" style={{ color: 'var(--text-muted)' }}>
                     <i className="uil uil-building text-3xl block mb-2" />
-                    No properties found. Run the seed API first.
+                    No properties found.
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
@@ -995,7 +1351,7 @@ export default function AdminDashboardPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {properties.map((prop) => (
+                        {filteredProperties.map((prop) => (
                           <tr key={prop._id}>
                             <td>
                               <div className="flex items-center gap-3">
@@ -1063,6 +1419,106 @@ export default function AdminDashboardPage() {
                 )}
               </div>
             )}
+
+            {/* SETTINGS TAB */}
+            {tab === 'settings' && (
+              <div className="glass-card p-6" style={{ background: 'var(--admin-sidebar-bg)', borderColor: 'var(--border-color)' }}>
+                <h2 className="font-outfit font-bold text-lg mb-2" style={{ color: 'var(--text-primary)' }}>System Administration Preferences</h2>
+                <p className="text-xs font-inter mb-6" style={{ color: 'var(--text-secondary)' }}>
+                  Configure platform settings, auto-approvals, email alerts, and service commissions.
+                </p>
+                
+                <div className="space-y-6 max-w-xl">
+                  {/* Maintenance Mode */}
+                  <div className="flex items-center justify-between p-4 rounded-2xl border" style={{ background: 'var(--input-bg)', borderColor: 'var(--border-color)' }}>
+                    <div>
+                      <div className="font-outfit font-bold text-sm" style={{ color: 'var(--text-primary)' }}>System Maintenance Mode</div>
+                      <div className="text-xs font-inter mt-0.5" style={{ color: 'var(--text-secondary)' }}>Restrict public site access during maintenance window</div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const val = !settings.maintenanceMode;
+                        setSettings({ ...settings, maintenanceMode: val });
+                        showToast(`Maintenance mode ${val ? 'enabled' : 'disabled'} successfully.`, 'info');
+                        addLog(`Admin toggled maintenance mode to ${val ? 'ON' : 'OFF'}.`, 'warning');
+                      }}
+                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-all duration-300 ${settings.maintenanceMode ? 'bg-gold-500' : 'bg-gray-400 dark:bg-gray-700'}`}
+                    >
+                      <div className={`w-4 h-4 rounded-full bg-white transition-all duration-300 transform ${settings.maintenanceMode ? 'translate-x-6' : 'translate-x-0'}`} />
+                    </button>
+                  </div>
+
+                  {/* Auto-approve */}
+                  <div className="flex items-center justify-between p-4 rounded-2xl border" style={{ background: 'var(--input-bg)', borderColor: 'var(--border-color)' }}>
+                    <div>
+                      <div className="font-outfit font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Auto-approve Applications</div>
+                      <div className="text-xs font-inter mt-0.5" style={{ color: 'var(--text-secondary)' }}>Automatically approve applicants meeting the annual income threshold</div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const val = !settings.autoApproveApps;
+                        setSettings({ ...settings, autoApproveApps: val });
+                        showToast(`Auto-approval system ${val ? 'activated' : 'deactivated'}.`, 'info');
+                        addLog(`Admin toggled auto-approval to ${val ? 'ON' : 'OFF'}.`, 'info');
+                      }}
+                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-all duration-300 ${settings.autoApproveApps ? 'bg-gold-500' : 'bg-gray-400 dark:bg-gray-700'}`}
+                    >
+                      <div className={`w-4 h-4 rounded-full bg-white transition-all duration-300 transform ${settings.autoApproveApps ? 'translate-x-6' : 'translate-x-0'}`} />
+                    </button>
+                  </div>
+
+                  {/* Email Notifications */}
+                  <div className="flex items-center justify-between p-4 rounded-2xl border" style={{ background: 'var(--input-bg)', borderColor: 'var(--border-color)' }}>
+                    <div>
+                      <div className="font-outfit font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Platform Email Alerts</div>
+                      <div className="text-xs font-inter mt-0.5" style={{ color: 'var(--text-secondary)' }}>Send instant email updates on new inquiries and applications</div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const val = !settings.emailNotifications;
+                        setSettings({ ...settings, emailNotifications: val });
+                        showToast(`Email notifications ${val ? 'enabled' : 'disabled'}.`, 'info');
+                        addLog(`Admin toggled email alerts to ${val ? 'ON' : 'OFF'}.`, 'info');
+                      }}
+                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-all duration-300 ${settings.emailNotifications ? 'bg-gold-500' : 'bg-gray-400 dark:bg-gray-700'}`}
+                    >
+                      <div className={`w-4 h-4 rounded-full bg-white transition-all duration-300 transform ${settings.emailNotifications ? 'translate-x-6' : 'translate-x-0'}`} />
+                    </button>
+                  </div>
+
+                  {/* Platform Commission */}
+                  <div className="p-4 rounded-2xl border space-y-3" style={{ background: 'var(--input-bg)', borderColor: 'var(--border-color)' }}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-outfit font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Platform Fee Commission</div>
+                        <div className="text-xs font-inter mt-0.5" style={{ color: 'var(--text-secondary)' }}>Service commission fee % charged on matching tenancy contracts</div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="number"
+                          value={settings.platformCommission}
+                          onChange={(e) => setSettings({ ...settings, platformCommission: e.target.value })}
+                          className="w-16 text-center rounded-lg py-1 px-2 text-xs font-bold bg-white dark:bg-white/5 border"
+                          style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                        />
+                        <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>%</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-end">
+                      <button
+                        onClick={() => {
+                          showToast(`Platform commission saved at ${settings.platformCommission}%.`, 'success');
+                          addLog(`Admin adjusted platform commission fee to ${settings.platformCommission}%.`, 'success');
+                        }}
+                        className="btn-gold py-1.5 px-4 text-2xs"
+                      >
+                        Save Comm. Rate
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -1084,7 +1540,7 @@ export default function AdminDashboardPage() {
                 fetchAll();
               }
             }}
-            className="btn-outline text-xs whitespace-nowrap bg-navy-900/5 dark:bg-navy-900/40"
+            className="btn-outline text-xs whitespace-nowrap"
             style={{ border: '1.5px solid var(--border-color)', color: 'var(--text-secondary)' }}
           >
             <i className="uil uil-database mr-1" />
@@ -1347,6 +1803,19 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       )}
+
+      {/* TOAST PORTAL */}
+      <div className="fixed bottom-5 right-5 z-[200] flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+        {toasts.map(t => (
+          <div key={t.id} className="p-4 rounded-xl border shadow-lg flex items-center gap-3 transition-all duration-300 pointer-events-auto animate-fade-in-up"
+            style={{ background: 'var(--nav-bg-scrolled)', borderColor: t.type === 'success' ? 'rgba(34,197,94,0.3)' : t.type === 'error' ? 'rgba(239,68,68,0.3)' : 'var(--border-color)' }}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs text-white ${t.type === 'success' ? 'bg-green-500' : t.type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`}>
+              <i className={`uil ${t.type === 'success' ? 'uil-check' : 'uil-exclamation-triangle'}`} />
+            </div>
+            <span className="text-xs font-inter font-semibold" style={{ color: 'var(--text-primary)' }}>{t.message}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

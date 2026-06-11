@@ -46,9 +46,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <Logo className="w-9 h-9 transition-transform duration-300 group-hover:scale-105" />
-            <span className="font-outfit font-extrabold text-xl" style={{ color: 'var(--text-primary)' }}>
-              Lanka<span className="text-gold-500">Rent</span>
+            <Logo mode="dark" className="w-9 h-9 transition-transform duration-300 group-hover:scale-105" />
+            <span className="font-outfit font-extrabold text-xl text-navy-900">
+              Lanka<span className="text-white drop-shadow-[0_1px_1.5px_rgba(5,13,36,0.3)]">Rent</span>
             </span>
           </Link>
 
@@ -60,15 +60,12 @@ export default function Navbar() {
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-inter font-semibold transition-all duration-200 ${
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-inter font-semibold transition-all duration-300 ${
                     active
-                      ? 'text-gold-500'
-                      : ''
+                      ? 'text-navy-900 bg-navy-900/10 border border-navy-900/20 shadow-sm'
+                      : 'text-navy-900/75 hover:text-navy-900 hover:bg-navy-900/5'
                   }`}
-                  style={active 
-                    ? { background: 'var(--nav-link-active-bg)', border: '1px solid rgba(245, 166, 35, 0.3)', boxShadow: '0 0 12px rgba(245, 166, 35, 0.08)' }
-                    : { color: 'var(--text-tertiary)' }
-                  }
+                  style={active ? { boxShadow: '0 2px 8px rgba(5, 13, 36, 0.05)' } : {}}
                 >
                   <i className={`uil ${icon} text-base`} />
                   {label}
@@ -81,13 +78,13 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-3">
             <button
               onClick={toggleTheme}
-              className="theme-toggle"
+              className="theme-toggle bg-navy-900/5 border-navy-900/10 text-navy-900 hover:bg-navy-900/10 hover:text-navy-900 hover:border-navy-900/20"
               aria-label="Toggle theme"
               title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             >
               <i className={`uil ${theme === 'light' ? 'uil-moon' : 'uil-sun'} text-lg`} />
             </button>
-            <Link href="/listings" className="btn-gold text-sm py-2.5 px-5">
+            <Link href="/listings" className="inline-flex items-center gap-2 font-outfit font-semibold rounded-xl text-sm py-2.5 px-5 transition-all duration-300 bg-navy-900 text-white hover:bg-navy-900/90 shadow-md hover:-translate-y-0.5">
               <i className="uil uil-search text-base" />
               Browse Properties
             </Link>
@@ -97,14 +94,13 @@ export default function Navbar() {
           <div className="lg:hidden flex items-center gap-2">
             <button
               onClick={toggleTheme}
-              className="theme-toggle"
+              className="theme-toggle bg-navy-900/5 border-navy-900/10 text-navy-900 hover:bg-navy-900/10 hover:text-navy-900 hover:border-navy-900/20"
               aria-label="Toggle theme"
             >
               <i className={`uil ${theme === 'light' ? 'uil-moon' : 'uil-sun'} text-lg`} />
             </button>
             <button
-              className="p-2"
-              style={{ color: 'var(--text-secondary)' }}
+              className="p-2 text-navy-900"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
@@ -115,26 +111,22 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {mobileOpen && (
-          <div className="lg:hidden mt-3 pb-4 glass-card p-4 space-y-1">
+          <div className="lg:hidden mt-3 pb-4 bg-amber-400 border border-amber-500/50 rounded-2xl p-4 space-y-1 shadow-lg">
             {navLinks.map(({ href, label, icon }) => (
               <Link
                 key={href}
                 href={href}
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-inter transition-all ${
-                  pathname === href ? 'text-gold-500' : ''
+                  pathname === href ? 'text-navy-900 bg-navy-900/10 font-bold' : 'text-navy-900/75 hover:text-navy-900 hover:bg-navy-900/5'
                 }`}
-                style={pathname === href 
-                  ? { background: 'var(--nav-link-active-bg)' }
-                  : { color: 'var(--text-tertiary)' }
-                }
               >
                 <i className={`uil ${icon} text-base`} />
                 {label}
               </Link>
             ))}
-            <div className="pt-2 flex flex-col gap-2" style={{ borderTop: '1px solid var(--border-color)' }}>
-              <Link href="/listings" onClick={() => setMobileOpen(false)} className="btn-gold text-sm justify-center">
+            <div className="pt-2 flex flex-col gap-2" style={{ borderTop: '1px solid rgba(5, 13, 36, 0.1)' }}>
+              <Link href="/listings" onClick={() => setMobileOpen(false)} className="inline-flex items-center justify-center gap-2 font-outfit font-semibold rounded-xl text-sm py-2.5 px-5 transition-all duration-300 bg-navy-900 text-white hover:bg-navy-900/90 shadow-md">
                 <i className="uil uil-search" />
                 Browse Properties
               </Link>

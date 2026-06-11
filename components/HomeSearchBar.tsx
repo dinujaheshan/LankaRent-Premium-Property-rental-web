@@ -25,11 +25,11 @@ export default function HomeSearchBar() {
           value={inputVal}
           onChange={(e) => setInputVal(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
-          className="form-input form-input-icon-left"
+          className="form-input form-input-icon-left bg-white dark:bg-white/5 shadow-sm"
         />
       </div>
       <select
-        className="form-select sm:w-44"
+        className="form-select sm:w-44 bg-white dark:bg-white/5 shadow-sm"
         value={category}
         onChange={(e) => setCategory(e.target.value)}
       >

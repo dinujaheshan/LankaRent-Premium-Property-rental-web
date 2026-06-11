@@ -80,7 +80,7 @@ function ListingsContent() {
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') setSearchQ(inputVal); }}
-                className="form-input form-input-icon-left form-input-icon-right text-sm"
+                className="form-input form-input-icon-left form-input-icon-right text-sm bg-white dark:bg-white/5 shadow-sm"
               />
               {inputVal && (
                 <button

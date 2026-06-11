@@ -14,9 +14,7 @@ const zones = [
     label: 'Urban Apartments',
     desc: 'Modern high-rise living in Colombo, Kandy and major Sri Lankan cities with premium amenities.',
     count: '80+ listings',
-    color: '#93c5fd',
-    bg: 'rgba(59,130,246,0.08)',
-    border: 'rgba(59,130,246,0.2)',
+    className: 'zone-apartment',
   },
   {
     id: 'Studio',
@@ -24,9 +22,7 @@ const zones = [
     label: 'Shared Studios',
     desc: 'Affordable furnished studios for solo travelers, students, and digital nomads across the island.',
     count: '45+ listings',
-    color: '#d8b4fe',
-    bg: 'rgba(168,85,247,0.08)',
-    border: 'rgba(168,85,247,0.2)',
+    className: 'zone-studio',
   },
   {
     id: 'Office',
@@ -34,9 +30,7 @@ const zones = [
     label: 'Executive Offices',
     desc: 'Grade-A commercial spaces and co-working hubs in prime business districts island-wide.',
     count: '30+ listings',
-    color: '#86efac',
-    bg: 'rgba(34,197,94,0.08)',
-    border: 'rgba(34,197,94,0.2)',
+    className: 'zone-office',
   },
   {
     id: 'Villa',
@@ -44,9 +38,7 @@ const zones = [
     label: 'Luxury Villas',
     desc: 'Exclusive oceanfront estates and mountain retreats with private pools and world-class facilities.',
     count: '25+ listings',
-    color: '#fcd34d',
-    bg: 'rgba(245,166,35,0.08)',
-    border: 'rgba(245,166,35,0.2)',
+    className: 'zone-villa',
   },
 ];
 
@@ -116,14 +108,11 @@ export default async function HomePage() {
             <Link
               key={zone.id}
               href={`/listings?category=${zone.id}`}
-              className="glass-card-hover p-6 group flex flex-col gap-4"
+              className={`glass-card-hover p-6 group flex flex-col gap-4 ${zone.className}`}
             >
               {/* Icon */}
-              <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
-                style={{ background: zone.bg, border: `1px solid ${zone.border}` }}
-              >
-                <i className={`uil ${zone.icon} text-2xl`} style={{ color: zone.color }} />
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 zone-icon-wrapper">
+                <i className={`uil ${zone.icon} text-2xl zone-icon`} />
               </div>
 
               <div>
@@ -132,7 +121,7 @@ export default async function HomePage() {
               </div>
 
               <div className="flex items-center justify-between mt-auto pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
-                <span className="text-xs font-outfit font-semibold" style={{ color: zone.color }}>{zone.count}</span>
+                <span className="text-xs font-outfit font-semibold zone-count">{zone.count}</span>
                 <i className="uil uil-arrow-right text-theme-muted group-hover:text-gold-500 transition-colors text-lg" />
               </div>
             </Link>
@@ -176,7 +165,7 @@ export default async function HomePage() {
       </section>
 
       {/* Why LankaRent */}
-      <section className="py-20" style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+      <section className="py-20" style={{ background: 'var(--input-bg)', borderTop: '1px solid var(--border-light)', borderBottom: '1px solid var(--border-light)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="section-title text-3xl sm:text-4xl mb-4">
